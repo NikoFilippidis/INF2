@@ -1,0 +1,1021 @@
+package engine;
+
+import java.util.Random;
+import java.util.WeakHashMap;
+
+import javax.security.auth.Subject;
+
+import karte.Feld;
+import karte.Karte;
+import karte.KartenArt;
+import karte.erde.feldarten.Berg;
+import karte.erde.feldarten.Dschungel;
+import karte.erde.feldarten.Eis;
+import karte.erde.feldarten.Huegel;
+import karte.erde.feldarten.Kueste;
+import karte.erde.feldarten.Meer;
+import karte.erde.feldarten.Steppe;
+import karte.erde.feldarten.Sumpf;
+import karte.erde.feldarten.Wald;
+import karte.erde.feldarten.Wiese;
+import karte.erde.feldarten.Wueste;
+import karte.resourcenarten.Aluminium;
+import karte.resourcenarten.Edelsteine;
+import karte.resourcenarten.Eisen;
+import karte.resourcenarten.Elfenbein;
+import karte.resourcenarten.Faerbemittel;
+import karte.resourcenarten.Fisch;
+import karte.resourcenarten.Gewuertz;
+import karte.resourcenarten.Gold;
+import karte.resourcenarten.Gummi;
+import karte.resourcenarten.Kohle;
+import karte.resourcenarten.Oase;
+import karte.resourcenarten.Obst;
+import karte.resourcenarten.Oel;
+import karte.resourcenarten.Pelz;
+import karte.resourcenarten.Pferde;
+import karte.resourcenarten.Rinder;
+import karte.resourcenarten.Salpeter;
+import karte.resourcenarten.Seide;
+import karte.resourcenarten.Tabak;
+import karte.resourcenarten.Uran;
+import karte.resourcenarten.Wal;
+import karte.resourcenarten.Weihrauch;
+import karte.resourcenarten.Wein;
+import karte.resourcenarten.Weizen;
+import karte.resourcenarten.Wild;
+import karte.resourcenarten.Zucker;
+
+public class GeneratorPangaea2 {
+	private static int maxeis = (int) (Parameter.spielfeldAnzahlX
+			* Parameter.spielfeldAnzahlY * 0.2 / 2 / Parameter.spielfeldAnzahlX);
+	private static Random r = new Random();
+	
+	private static int mitteX = (int) Parameter.spielfeldAnzahlX / 2;
+	private static int mitteY= (int) Parameter.spielfeldAnzahlY/ 2;
+	
+	static Random randomZahl = new Random();
+	
+	static int zehntelallFelderDurchX = (int) ((Parameter.spielfeldAnzahlX
+			* Parameter.spielfeldAnzahlY * 0.1) / Parameter.spielfeldAnzahlX);
+	static int dreißigProzentGesamt = (int) ((Parameter.spielfeldAnzahlX
+			* Parameter.spielfeldAnzahlY * 0.3));
+	static int maxSteppe = (int) ((Parameter.spielfeldAnzahlX
+			* Parameter.spielfeldAnzahlY * 0.1) / Parameter.spielfeldAnzahlX);
+	static int randomZahlOben = randomZahl.nextInt(zehntelallFelderDurchX) + 1; 
+	static int randomZahlUnten = randomZahl.nextInt(zehntelallFelderDurchX) + 1;
+	static int wuesteXYAusschlagMax = (int) ((Parameter.spielfeldAnzahlX
+			* Parameter.spielfeldAnzahlY * 0.15) / Parameter.spielfeldAnzahlX);
+	static int WuesteGrenzeLinksX = randomZahl.nextInt(2) + 2;
+	static int WuesteGrenzeRechtsX = Parameter.spielfeldAnzahlX
+			- (randomZahl.nextInt(2) + 2);
+	static int wuesteAusschlagUnten = randomZahl.nextInt(wuesteXYAusschlagMax);
+	static int wuesteAusschlagOben = randomZahl.nextInt(wuesteXYAusschlagMax);
+	
+	
+	static int maxeisNeu = (int) (Parameter.spielfeldAnzahlX
+			* Parameter.spielfeldAnzahlY * 0.1 / Parameter.spielfeldAnzahlX);
+	
+	public static Karte generatePangaea() {		
+		// karte mit meer wird gesetzt
+		Karte k = new Karte(1, KartenArt.Erde, null);
+		for (int i = 1; i <= Parameter.spielfeldAnzahlX; i++) {
+			for (int j = 2; j <= Parameter.spielfeldAnzahlY - 1; j++) {
+				k.getFelder()[i][j] = new Meer();
+			}
+		}
+		
+		pole(k);
+		//kreuzWerte errechnen
+		int hoch;
+		do{
+			hoch = r.nextInt(Parameter.spielfeldAnzahlY);
+		}while(hoch < 30 || hoch > Parameter.spielfeldAnzahlY/2-8);
+		
+		int runter;
+		do{
+			runter = r.nextInt(Parameter.spielfeldAnzahlY);
+		}while(runter < 30 || runter > Parameter.spielfeldAnzahlY/2-8);
+		
+		int rechts;
+		do{
+			rechts = r.nextInt(Parameter.spielfeldAnzahlX);
+		}while(rechts < 30 || rechts> Parameter.spielfeldAnzahlX/2-2);
+		
+		int links;
+		do{
+			links = r.nextInt(Parameter.spielfeldAnzahlX);
+		}while(links < 30 || links > Parameter.spielfeldAnzahlX/2-2);
+		
+		generierLand(k,hoch,runter,rechts,links);
+		
+		
+		int berganzahl=0;
+		int startX;
+		int startY;
+		int feldwahl=0;
+		do{
+			do{
+				startX = r.nextInt(Parameter.spielfeldAnzahlX+1);
+				startY = r.nextInt(Parameter.spielfeldAnzahlY+1);
+			}while (!(k.getFelder()[startX][startY] instanceof Berg));
+			
+			
+//			generierLand2(k, zzz(3, 4), zzz(3, 4), zzz(3, 4), zzz(3, 4), new Steppe(), startX, startY);
+			if(istWuesteMoeglich(startY))
+				feldwahl = zzo(1);
+//			if(istEisMoeglich(startY))
+//				feldwahl = zzo(7);
+			if(!(istEisMoeglich(startY))&&!(istWuesteMoeglich(startY)))
+					feldwahl = zzo(1, 7);
+		
+			
+			switch(feldwahl){
+				case 0 :
+					generierLand2(k, 3, 3, 3, 3, new Dschungel(), startX, startY);
+					break;
+				case 1 :
+					generierLand2(k, 3, 3, 3, 3, new Eis(), startX, startY);
+					break;
+				case 2 :
+					generierLand2(k, 3, 3, 3, 3, new Huegel(), startX, startY);
+					break;
+				case 3 :
+					generierLand2(k, 3, 3, 3, 3, new Steppe(), startX, startY);
+					break;
+				case 4 :
+					generierLand2(k, 3, 3, 3, 3, new Sumpf(), startX, startY);
+					break;
+				case 5 :
+					generierLand2(k, 3, 3, 3, 3, new Wald(), startX, startY);
+					break;
+				case 6 :
+					generierLand2(k, 3, 3, 3, 3, new Wiese(), startX, startY);
+					break;
+				case 7 :
+					generierLand2(k, 3, 3, 3, 3, new Wueste(), startX, startY);
+					break;
+			}
+						
+			berganzahl = 0;
+			for (int x = 1; x < Parameter.spielfeldAnzahlX; x++){
+				for (int y = 1; y < Parameter.spielfeldAnzahlY; y++){
+					if(k.getFelder()[x][y] instanceof Berg)
+						berganzahl++;
+				}
+			}
+		}while(berganzahl>400);
+		
+		feldrandBedingungen(k);
+		setRessourcen(k);
+		spielersetzen(k);
+
+		return k;
+	}
+	
+	private static void pole(Karte k) {
+	for (int i = 1; i <= Parameter.spielfeldAnzahlX; i++) {
+			
+			
+			randomZahlOben = randomZahlOben + randomZahl.nextInt(3) - 1;
+			if (randomZahlOben == 0)
+				randomZahlOben = 1;
+			if (randomZahlOben == zehntelallFelderDurchX + 1) 
+				randomZahlOben = zehntelallFelderDurchX;
+			for (int j = 1; j <= randomZahlOben; j++) { 
+				 k.getFelder()[i][j] = new Eis();
+			}
+
+			// Steppe auf Eis zeichnen oben der Startpunkt ist immer das Ende vom Eis
+			int steppeHoeheOben = randomZahl.nextInt(2) + 3;
+			for (int j = (randomZahlOben + 1); j < (randomZahlOben + steppeHoeheOben); j++) {
+				int r = randomZahl.nextInt(50) + 1;
+				if (r >= 25) {
+					if (k.getFelder()[i][j - 1] instanceof Eis) {
+						k.getFelder()[i][j] = new Steppe();
+						if (i < Parameter.spielfeldAnzahlX&&!(k.getFelder()[i+1][j+1] instanceof Steppe)) 
+							k.getFelder()[i+1][j+1] = new Kueste();
+						if(i>=2&&!(k.getFelder()[i-1][j+1] instanceof Steppe))
+							k.getFelder()[i-1][j+1] = new Kueste();
+					} else {
+						k.getFelder()[i][j] = new Kueste();
+					}
+				} else {
+					k.getFelder()[i][j] = new Kueste();
+				}
+
+			}
+			
+
+			/*SUEDPOL------------------------------------------------------------------*/
+			
+
+			//Eis zeichnen
+			randomZahlUnten = randomZahlUnten + randomZahl.nextInt(3) - 1; 
+			if (randomZahlUnten == 0)
+				randomZahlUnten = 1;
+			if (randomZahlUnten == zehntelallFelderDurchX + 1)
+				randomZahlUnten = zehntelallFelderDurchX;
+			for (int j = Parameter.spielfeldAnzahlY; j > Parameter.spielfeldAnzahlY
+					- randomZahlUnten; j--) {
+				k.getFelder()[i][j] = new Eis();
+			}
+
+			// Steppe auf Eis zeichnen (Suedpol) unten der Startpunkt ist Ende von Eis
+//			int steppeHoeheUnten = (randomZahl.nextInt(zehntelallFelderDurchX) + 1)+(randomZahl.nextInt(3));
+			int steppeHoeheUnten = randomZahl.nextInt(2) + 2;
+			for (int q = (Parameter.spielfeldAnzahlY - randomZahlUnten); q > (Parameter.spielfeldAnzahlY
+					- randomZahlUnten - steppeHoeheUnten); q--) {
+				int r = randomZahl.nextInt(50) + 1;
+				if (r >= 25) {
+					if (k.getFelder()[i][q+1] instanceof Eis) {
+						k.getFelder()[i][q] = new Steppe();
+//							k.getFelder()[i+1][q+1] = new Kueste();
+							if (i < Parameter.spielfeldAnzahlX&&!(k.getFelder()[i+1][q-1] instanceof Steppe)) 
+								k.getFelder()[i+1][q-1] = new Kueste();
+							if(i>=2&&!(k.getFelder()[i-1][q-1] instanceof Steppe))
+								k.getFelder()[i-1][q-1] = new Kueste();
+					} else {
+						k.getFelder()[i][q] = new Kueste();
+					}
+				} else {
+					k.getFelder()[i][q] = new Kueste();
+				}
+				
+			}
+		}
+	}
+
+
+	private static void spielersetzen(Karte k) {
+		for (int i = 1; i <= Parameter.spielfeldAnzahlX; i++) {
+			for (int j = 1; j <= Parameter.spielfeldAnzahlY; j++) {
+				k.getFelder()[i][j].setKarte(k);
+			}
+		}
+		boolean nichtgesetzt = true;
+		int xwertquartal1 = (int) (mitteX - Parameter.spielfeldAnzahlX / 2);
+		int ywertquartal1 = (int) (mitteY - Parameter.spielfeldAnzahlY / 2);
+		int xwertquartal2 = (int) (mitteX + Parameter.spielfeldAnzahlX / 2);
+		int ywertquartal2 = (int) (mitteY - Parameter.spielfeldAnzahlY / 2);
+		int xwertquartal3 = (int) (mitteX - Parameter.spielfeldAnzahlX / 2);
+		int ywertquartal3 = (int) (mitteY + Parameter.spielfeldAnzahlY / 2);
+		int xwertquartal4 = (int) (mitteX + Parameter.spielfeldAnzahlX / 2);
+		int ywertquartal4 = (int) (mitteY + Parameter.spielfeldAnzahlY / 2);
+		while(nichtgesetzt){
+				if(!(k.getFelder()[xwertquartal1][ywertquartal1] instanceof Meer)
+				&& !(k.getFelder()[xwertquartal2][ywertquartal2] instanceof Meer)
+				&& !(k.getFelder()[xwertquartal3][ywertquartal3] instanceof Meer)
+				&& !(k.getFelder()[xwertquartal4][ywertquartal4] instanceof Meer)
+				&& !(k.getFelder()[xwertquartal1][ywertquartal1] instanceof Eis)
+				&& !(k.getFelder()[xwertquartal2][ywertquartal2] instanceof Eis)
+				&& !(k.getFelder()[xwertquartal3][ywertquartal3] instanceof Eis)
+				&& !(k.getFelder()[xwertquartal4][ywertquartal4] instanceof Eis)
+				&& !(k.getFelder()[xwertquartal1][ywertquartal1] instanceof Steppe)
+				&& !(k.getFelder()[xwertquartal2][ywertquartal2] instanceof Steppe)
+				&& !(k.getFelder()[xwertquartal3][ywertquartal3] instanceof Steppe)
+				&& !(k.getFelder()[xwertquartal4][ywertquartal4] instanceof Steppe)
+				&& !(k.getFelder()[xwertquartal1][ywertquartal1] instanceof Kueste)
+				&& !(k.getFelder()[xwertquartal2][ywertquartal2] instanceof Kueste)
+				&& !(k.getFelder()[xwertquartal3][ywertquartal3] instanceof Kueste)
+				&& !(k.getFelder()[xwertquartal4][ywertquartal4] instanceof Kueste)
+					){
+						k.getFelder()[xwertquartal1 + r.nextInt(10)][ywertquartal1 + r.nextInt(10)].setSpielerstart(1);
+						k.getFelder()[xwertquartal2 - r.nextInt(10)][ywertquartal2 + r.nextInt(10)].setSpielerstart(2);
+						k.getFelder()[xwertquartal3 + r.nextInt(10)][ywertquartal3 - r.nextInt(10)].setSpielerstart(3);
+						k.getFelder()[xwertquartal4 - r.nextInt(10)][ywertquartal4 - r.nextInt(10)].setSpielerstart(4);
+						nichtgesetzt = false;
+			}
+				else{
+					xwertquartal1++; ywertquartal1++; xwertquartal2--; ywertquartal2++;
+					xwertquartal3++; ywertquartal3--; xwertquartal4--; ywertquartal4--;
+				}
+		}
+	}
+	private static void setRessourcen(Karte k) {
+		for (int i = 1; i <= Parameter.spielfeldAnzahlX; i++) {
+			for (int j = 1; j <= Parameter.spielfeldAnzahlY; j++) {				
+				if(j == 1) j  = r.nextInt(20);
+				switch(ermittleFeldTyp(k,i,j)){
+				case 0: 
+					setRessourcenAufBerg(k,i,j);
+					break;
+				case 1:
+					setRessourcenAufDschungel(k,i,j);
+					break;
+				case 2:
+					setRessourcenAufEis(k,i,j);
+					break;
+				case 3:
+					setRessourcenAufHuegel(k,i,j);
+					break;
+				case 4:
+					setRessourcenAufKueste(k,i,j);
+					break;
+				case 5:
+					setRessourcenAufMeer(k,i,j);
+					break;
+				case 6:
+					setRessourcenAufSteppe(k,i,j);
+					break;
+				case 7:
+					setRessourcenAufSumpf(k,i,j);
+					break;
+				case 8:
+					setRessourcenAufWald(k,i,j);
+					break;
+				case 9:
+					setRessourcenAufWiese(k,i,j);
+					break;
+				case 10:
+					setRessourcenAufWueste(k,i,j);
+					break;
+				}
+				j += r.nextInt(zzz(1, 50));
+			}
+		}
+	}
+
+	private static void setRessourcenAufWueste(Karte k, int i, int j) {
+		switch(r.nextInt(4)){
+		case 0:
+			k.getFelder()[i][j].setResource(new Oel());
+			break;
+		case 1:
+			k.getFelder()[i][j].setResource(new Oase());
+			break;
+		case 2:
+			k.getFelder()[i][j].setResource(new Salpeter());
+			break;
+		case 3:
+			k.getFelder()[i][j].setResource(new Weihrauch());
+			break;
+		}
+	}
+
+	private static void setRessourcenAufWiese(Karte k, int i, int j) {
+		switch(r.nextInt(5)){
+		case 0:
+			k.getFelder()[i][j].setResource(new Pferde());
+			break;
+		case 1:
+			k.getFelder()[i][j].setResource(new Tabak());
+			break;
+		case 2:
+			k.getFelder()[i][j].setResource(new Rinder());
+			break;
+		case 3:
+			k.getFelder()[i][j].setResource(new Wein());
+			break;
+		case 4:
+			k.getFelder()[i][j].setResource(new Weizen());
+			break;
+		}
+	}
+
+	private static void setRessourcenAufWald(Karte k, int i, int j) {
+		switch(r.nextInt(7)){
+		case 0:
+			k.getFelder()[i][j].setResource(new Faerbemittel());
+			break;
+		case 1:
+			k.getFelder()[i][j].setResource(new Gummi());
+			break;
+		case 2:
+			k.getFelder()[i][j].setResource(new Gewuertz());
+			break;
+		case 3:
+			k.getFelder()[i][j].setResource(new Pelz());
+			break;
+		case 4:
+			k.getFelder()[i][j].setResource(new Seide());
+			break;
+		case 5:
+			k.getFelder()[i][j].setResource(new Wild());
+			break;
+		case 6:
+			k.getFelder()[i][j].setResource(new Uran());
+			break;
+		}		
+	}
+
+	private static void setRessourcenAufSumpf(Karte k, int i, int j) {
+		switch(r.nextInt(3)){
+		case 0:
+			k.getFelder()[i][j].setResource(new Oel());
+			break;
+		case 1:
+			k.getFelder()[i][j].setResource(new Gummi());
+			break;
+		case 2:
+			k.getFelder()[i][j].setResource(new Wild());
+			break;
+		}
+	}
+
+	private static void setRessourcenAufSteppe(Karte k, int i, int j) {
+		switch(r.nextInt(6)){
+		case 0:
+			k.getFelder()[i][j].setResource(new Oel());
+			break;
+		case 1:
+			k.getFelder()[i][j].setResource(new Gummi());
+			break;
+		case 2:
+			k.getFelder()[i][j].setResource(new Wild());
+			break;
+		case 3:
+			k.getFelder()[i][j].setResource(new Wein());
+			break;
+		case 4:
+			k.getFelder()[i][j].setResource(new Weizen());
+			break;
+		case 5:
+			k.getFelder()[i][j].setResource(new Zucker());
+			break;
+		}		
+	}
+
+	private static void setRessourcenAufMeer(Karte k, int i, int j) {
+		switch(r.nextInt(3)){
+		case 0:
+			k.getFelder()[i][j].setResource(new Fisch());
+			break;
+		case 1:
+			k.getFelder()[i][j].setResource(new Oel());
+			break;
+		case 2:
+			k.getFelder()[i][j].setResource(new Wal());
+			break;
+		}		
+	}
+
+	private static void setRessourcenAufKueste(Karte k, int i, int j) {
+		switch(r.nextInt(2)){
+		case 0:
+			k.getFelder()[i][j].setResource(new Fisch());
+			break;
+		case 1:
+			k.getFelder()[i][j].setResource(new Oel());
+			break;
+		}		
+	}
+
+	private static void setRessourcenAufHuegel(Karte k, int i, int j) {
+		switch(r.nextInt(9)){
+		case 0:
+			k.getFelder()[i][j].setResource(new Aluminium());
+			break;
+		case 1:
+			k.getFelder()[i][j].setResource(new Eisen());
+			break;
+		case 2:
+			k.getFelder()[i][j].setResource(new Gold());
+			break;
+		case 3:
+			k.getFelder()[i][j].setResource(new Kohle());
+			break;
+		case 4:
+			k.getFelder()[i][j].setResource(new Salpeter());
+			break;
+		case 5:
+			k.getFelder()[i][j].setResource(new Tabak());
+			break;
+		case 6:
+			k.getFelder()[i][j].setResource(new Wein());
+			break;
+		case 7:
+			k.getFelder()[i][j].setResource(new Weihrauch());
+			break;
+		case 8:
+			k.getFelder()[i][j].setResource(new Zucker());
+			break;
+		}
+		
+	}
+
+	private static void setRessourcenAufEis(Karte k, int i, int j) {
+		switch(r.nextInt(4)){
+		case 0:
+			k.getFelder()[i][j].setResource(new Aluminium());
+			break;
+		case 1:
+			k.getFelder()[i][j].setResource(new Oel());
+			break;
+		case 2:
+			k.getFelder()[i][j].setResource(new Pelz());
+			break;
+		case 3:
+			k.getFelder()[i][j].setResource(new Wild());
+			break;
+		}
+		
+	}
+
+	private static void setRessourcenAufDschungel(Karte k, int i, int j) {
+		switch(r.nextInt(7)){
+		case 0:
+			k.getFelder()[i][j].setResource(new Aluminium());
+			break;
+		case 1:
+			k.getFelder()[i][j].setResource(new Edelsteine());
+			break;
+		case 2:
+			k.getFelder()[i][j].setResource(new Eisen());
+			break;
+		case 3:
+			k.getFelder()[i][j].setResource(new Gold());
+			break;
+		case 4:
+			k.getFelder()[i][j].setResource(new Kohle());
+			break;
+		case 5:
+			k.getFelder()[i][j].setResource(new Uran());
+			break;
+		case 6:
+			k.getFelder()[i][j].setResource(new Wild());
+			break;
+		}
+	}
+
+	private static void setRessourcenAufBerg(Karte k, int i, int j) {
+		switch(r.nextInt(6)){
+		case 0:
+			k.getFelder()[i][j].setResource(new Edelsteine());
+			break;
+		case 1:
+			k.getFelder()[i][j].setResource(new Faerbemittel());
+			break;
+		case 2:
+			k.getFelder()[i][j].setResource(new Gewuertz());
+			break;
+		case 3:
+			k.getFelder()[i][j].setResource(new Gummi());
+			break;
+		case 4:
+			k.getFelder()[i][j].setResource(new Kohle());
+			break;
+		case 5:
+			k.getFelder()[i][j].setResource(new Obst());
+			break;
+		case 6:
+			k.getFelder()[i][j].setResource(new Seide());
+			break;
+		}
+	}
+
+	private static int ermittleFeldTyp(Karte k,int x, int y) {
+		if(k.getFelder()[x][y] instanceof Berg)
+			return 0;
+		if(k.getFelder()[x][y] instanceof Dschungel)
+			return 1;
+		if(k.getFelder()[x][y] instanceof Eis)
+			return 2;
+		if(k.getFelder()[x][y] instanceof Huegel)
+			return 3;
+		if(k.getFelder()[x][y] instanceof Kueste)
+			return 4;
+		if(k.getFelder()[x][y] instanceof Meer)
+			return 5;
+		if(k.getFelder()[x][y] instanceof Steppe)
+			return 6;
+		if(k.getFelder()[x][y] instanceof Sumpf)
+			return 7;
+		if(k.getFelder()[x][y] instanceof Wald)
+			return 8;
+		if(k.getFelder()[x][y] instanceof Wiese)
+			return 9;
+		if(k.getFelder()[x][y] instanceof Wueste)
+			return 10;
+		return -1;
+	}
+
+	private static int zzz(int a,int e){
+		int zahl;
+		do{
+			zahl = r.nextInt(Parameter.spielfeldAnzahlY);
+		}while(zahl < a || zahl > e);		
+		return zahl;
+	}
+
+	private static int zzo(int a){
+		int ra;
+		do{
+			ra = r.nextInt(8);
+		}while(ra == a);
+		return ra;
+	}
+	
+	private static int zzo(int a, int b){
+		int ra;
+		do{
+			ra = r.nextInt(8);
+		}while(ra == a || ra == b);
+		return ra;
+	}
+
+	private static void feldrandBedingungen(Karte k) {
+		for (int i = 2; i <= Parameter.spielfeldAnzahlX-2; i++) {
+			for (int j = 11; j <= Parameter.spielfeldAnzahlY - 10; j++) {
+			
+				
+				if(k.getFelder()[i][j] instanceof Eis){
+					if(!(k.getFelder()[i][j+1] instanceof Kueste) & !(k.getFelder()[i][j+1] instanceof Steppe)& !(k.getFelder()[i][j+1] instanceof Eis) )
+						k.getFelder()[i][j+1] = new Steppe();
+					if(!(k.getFelder()[i][j-1] instanceof Kueste) & !(k.getFelder()[i][j-1] instanceof Steppe) & !(k.getFelder()[i][j-1] instanceof Eis))
+						k.getFelder()[i][j-1] = new Steppe();
+					if(!(k.getFelder()[i+1][j] instanceof Kueste) & !(k.getFelder()[i+1][j] instanceof Steppe)& !(k.getFelder()[i+1][j] instanceof Eis))
+						k.getFelder()[i+1][j] = new Steppe();
+					if(!(k.getFelder()[i-1][j-1] instanceof Kueste) & !(k.getFelder()[i-1][j] instanceof Steppe)& !(k.getFelder()[i-1][j] instanceof Eis))
+						k.getFelder()[i-1][j] = new Steppe();
+					
+					if(!(k.getFelder()[i-1][j-1] instanceof Kueste) & !(k.getFelder()[i-1][j-1] instanceof Steppe) & !(k.getFelder()[i-1][j-1] instanceof Eis))
+						k.getFelder()[i-1][j-1] = new Steppe();
+					if(!(k.getFelder()[i+1][j-1] instanceof Kueste) & !(k.getFelder()[i+1][j-1] instanceof Steppe) & !(k.getFelder()[i+1][j-1] instanceof Eis))
+						k.getFelder()[i+1][j-1] = new Steppe();
+					if(!(k.getFelder()[i-1][j+1] instanceof Kueste) & !(k.getFelder()[i-1][j+1] instanceof Steppe) & !(k.getFelder()[i-1][j+1] instanceof Eis))
+						k.getFelder()[i-1][j+1] = new Steppe();
+					if(!(k.getFelder()[i+1][j+1] instanceof Kueste) & !(k.getFelder()[i+1][j+1] instanceof Steppe) & !(k.getFelder()[i+1][j+1] instanceof Eis))
+						k.getFelder()[i+1][j+1] = new Steppe();
+				}
+				
+				
+				
+				if(k.getFelder()[i][j] instanceof Wueste){
+					if(!(k.getFelder()[i][j+1] instanceof Kueste) & !(k.getFelder()[i][j+1] instanceof Steppe)& !(k.getFelder()[i][j+1] instanceof Wueste) )
+						k.getFelder()[i][j+1] = new Steppe();
+					if(!(k.getFelder()[i][j-1] instanceof Kueste) & !(k.getFelder()[i][j-1] instanceof Steppe) & !(k.getFelder()[i][j-1] instanceof Wueste))
+						k.getFelder()[i][j-1] = new Steppe();
+					if(!(k.getFelder()[i+1][j] instanceof Kueste) & !(k.getFelder()[i+1][j] instanceof Steppe)& !(k.getFelder()[i+1][j] instanceof Wueste))
+						k.getFelder()[i+1][j] = new Steppe();
+					if(!(k.getFelder()[i-1][j-1] instanceof Kueste) & !(k.getFelder()[i-1][j] instanceof Steppe)& !(k.getFelder()[i-1][j] instanceof Wueste))
+						k.getFelder()[i-1][j] = new Steppe();
+					
+					if(!(k.getFelder()[i-1][j-1] instanceof Kueste) & !(k.getFelder()[i-1][j-1] instanceof Steppe) & !(k.getFelder()[i-1][j-1] instanceof Wueste))
+						k.getFelder()[i-1][j-1] = new Steppe();
+					if(!(k.getFelder()[i+1][j-1] instanceof Kueste) & !(k.getFelder()[i+1][j-1] instanceof Steppe) & !(k.getFelder()[i+1][j-1] instanceof Wueste))
+						k.getFelder()[i+1][j-1] = new Steppe();
+					if(!(k.getFelder()[i-1][j+1] instanceof Kueste) & !(k.getFelder()[i-1][j+1] instanceof Steppe) & !(k.getFelder()[i-1][j+1] instanceof Wueste))
+						k.getFelder()[i-1][j+1] = new Steppe();
+					if(!(k.getFelder()[i+1][j+1] instanceof Kueste) & !(k.getFelder()[i+1][j+1] instanceof Steppe) & !(k.getFelder()[i+1][j+1] instanceof Wueste))
+						k.getFelder()[i+1][j+1] = new Steppe();
+				}
+			}
+		}
+	}
+
+	private static void generierLand(Karte k, int hoch, int runter, int rechts, int links){
+		//kreuz zeichnen
+		k.getFelder()[mitteX][mitteY] = new Berg();
+		for (int i = 0; i < hoch; i++) {
+			k.getFelder()[mitteX][mitteY - i - 1] = new Berg();
+			k.getFelder()[mitteX+1][mitteY - i - 2] = new Kueste();
+			k.getFelder()[mitteX-1][mitteY - i - 2] = new Kueste();
+			k.getFelder()[mitteX+1][mitteY - i - 1] = new Kueste();
+			k.getFelder()[mitteX+2][mitteY - i - 1] = new Kueste();
+			k.getFelder()[mitteX-1][mitteY - i - 1] = new Kueste();
+			k.getFelder()[mitteX-2][mitteY - i - 1] = new Kueste();
+			k.getFelder()[mitteX][mitteY - i - 2] = new Kueste();
+			k.getFelder()[mitteX][mitteY - i - 3] = new Kueste();
+		}
+		for (int i = 0; i < runter; i++) {
+			k.getFelder()[mitteX][mitteY + i + 1] = new Berg();
+			k.getFelder()[mitteX+1][mitteY + i + 2] = new Kueste();
+			k.getFelder()[mitteX-1][mitteY + i + 2] = new Kueste();
+			k.getFelder()[mitteX-1][mitteY + i + 1] = new Kueste();
+			k.getFelder()[mitteX-2][mitteY + i + 1] = new Kueste();
+			k.getFelder()[mitteX+1][mitteY + i + 1] = new Kueste();
+			k.getFelder()[mitteX+2][mitteY + i + 1] = new Kueste();
+			k.getFelder()[mitteX][mitteY + i + 2] = new Kueste();
+			k.getFelder()[mitteX][mitteY + i + 3] = new Kueste();
+		}
+		for (int i = 0; i < rechts; i++) {
+			k.getFelder()[mitteX + i + 1][mitteY] = new Berg();
+			k.getFelder()[mitteX + i + 2][mitteY-1] = new Kueste();
+			k.getFelder()[mitteX + i + 2][mitteY+1] = new Kueste();
+			k.getFelder()[mitteX + i + 1][mitteY+1] = new Kueste();
+			k.getFelder()[mitteX + i + 1][mitteY+2] = new Kueste();
+			k.getFelder()[mitteX + i + 1][mitteY-1] = new Kueste();
+			k.getFelder()[mitteX + i + 1][mitteY-2] = new Kueste();
+			k.getFelder()[mitteX + i + 2][mitteY] = new Kueste();
+			k.getFelder()[mitteX + i + 3][mitteY] = new Kueste();
+		}
+		for (int i = 0; i < links; i++) {
+			k.getFelder()[mitteX - i - 1][mitteY] = new Berg();
+			k.getFelder()[mitteX - i - 2][mitteY-1] = new Kueste();
+			k.getFelder()[mitteX - i - 2][mitteY+1] = new Kueste();
+			k.getFelder()[mitteX - i - 1][mitteY+1] = new Kueste();
+			k.getFelder()[mitteX - i - 1][mitteY+2] = new Kueste();
+			k.getFelder()[mitteX - i - 1][mitteY-1] = new Kueste();
+			k.getFelder()[mitteX - i - 1][mitteY-2] = new Kueste();
+			k.getFelder()[mitteX - i - 2][mitteY] = new Kueste();
+			k.getFelder()[mitteX - i - 3][mitteY] = new Kueste();
+		}
+		
+		
+		// F�llt kreuz
+		int hoeheVomLetzten = hoch;
+		int hoeheJetzt;
+		boolean raus = true;
+		
+		//obenRechts
+		for (int i = 0; i < rechts; i++) {
+			do {
+				hoeheJetzt = r.nextInt(hoeheVomLetzten + 1);
+				if (hoeheJetzt > hoeheVomLetzten - 2)
+					raus = false;
+				if (hoeheJetzt > hoeheVomLetzten - 3 && raus != false){
+					do{
+						hoeheJetzt = r.nextInt(hoeheVomLetzten + 1);
+						if (hoeheJetzt > hoeheVomLetzten - 4)
+							raus = false;
+					}while(raus);
+				}
+				
+			} while (raus);
+			raus = true;
+			for (int ii = 0; ii < hoeheJetzt; ii++){
+				k.getFelder()[mitteX + i + 1][mitteY - ii - 1] = new Berg();
+				k.getFelder()[mitteX + i + 2][mitteY - ii - 2] = new Kueste();
+				k.getFelder()[mitteX + i + 1][mitteY - ii - 2] = new Kueste();
+				k.getFelder()[mitteX + i + 1][mitteY - ii - 3] = new Kueste();
+				k.getFelder()[mitteX + i + 2][mitteY - ii - 1] = new Kueste();
+				k.getFelder()[mitteX + i + 3][mitteY - ii - 1] = new Kueste();
+			}
+			hoeheVomLetzten = hoeheJetzt;
+		}
+		
+		
+		
+		//obenLinks
+		hoeheVomLetzten = links;
+		for (int i = 0; i < hoch; i++) {
+			do {
+				hoeheJetzt = r.nextInt(hoeheVomLetzten + 1);
+				if (hoeheJetzt > hoeheVomLetzten - 2)
+					raus = false;
+				if (hoeheJetzt > hoeheVomLetzten - 3 && raus != false){
+					do{
+						hoeheJetzt = r.nextInt(hoeheVomLetzten + 1);
+						if (hoeheJetzt > hoeheVomLetzten - 4)
+							raus = false;
+					}while(raus);
+				}
+				
+			} while (raus);
+			raus = true;
+			for (int ii = 0; ii < hoeheJetzt; ii++){
+				k.getFelder()[mitteX - ii - 1][mitteY - i - 1] = new Berg();
+				k.getFelder()[mitteX - ii - 2][mitteY - i - 2] = new Kueste();
+				k.getFelder()[mitteX - ii - 1][mitteY - i - 2] = new Kueste();
+				k.getFelder()[mitteX - ii - 1][mitteY - i - 3] = new Kueste();
+				k.getFelder()[mitteX - ii - 2][mitteY - i - 1] = new Kueste();
+				k.getFelder()[mitteX - ii - 3][mitteY - i - 1] = new Kueste();
+			}
+			hoeheVomLetzten = hoeheJetzt;
+		}
+		
+		//untenRechts
+		hoeheVomLetzten = rechts;
+		for (int i = 0; i < runter; i++) {
+			do {
+				hoeheJetzt = r.nextInt(hoeheVomLetzten + 1);
+				if (hoeheJetzt > hoeheVomLetzten - 2)
+					raus = false;
+				if (hoeheJetzt > hoeheVomLetzten - 3 && raus != false){
+					do{
+						hoeheJetzt = r.nextInt(hoeheVomLetzten + 1);
+						if (hoeheJetzt > hoeheVomLetzten - 4)
+							raus = false;
+					}while(raus);
+				}
+				
+			} while (raus);
+			raus = true;
+			for (int ii = 0; ii < hoeheJetzt; ii++){
+				k.getFelder()[mitteX + ii + 1][mitteY + i + 1] = new Berg();
+				k.getFelder()[mitteX + ii + 2][mitteY + i + 2] = new Kueste();
+				k.getFelder()[mitteX + ii + 1][mitteY + i + 2] = new Kueste();
+				k.getFelder()[mitteX + ii + 1][mitteY + i + 3] = new Kueste();
+				k.getFelder()[mitteX + ii + 2][mitteY + i + 1] = new Kueste();
+				k.getFelder()[mitteX + ii + 3][mitteY + i + 1] = new Kueste();
+			}
+			hoeheVomLetzten = hoeheJetzt;
+		}
+		
+		//untenLinks
+		hoeheVomLetzten = runter;
+		for (int i = 0; i < links; i++) {
+			do {
+				hoeheJetzt = r.nextInt(hoeheVomLetzten + 1);
+				if (hoeheJetzt > hoeheVomLetzten - 2)
+					raus = false;
+				if (hoeheJetzt > hoeheVomLetzten - 3 && raus != false){
+					do{
+						hoeheJetzt = r.nextInt(hoeheVomLetzten + 1);
+						if (hoeheJetzt > hoeheVomLetzten - 4)
+							raus = false;
+					}while(raus);
+				}
+				
+			} while (raus);
+			raus = true;
+			for (int ii = 0; ii < hoeheJetzt; ii++){
+				k.getFelder()[mitteX - i - 1][mitteY + ii + 1] = new Berg();
+				k.getFelder()[mitteX - i - 2][mitteY + ii + 2] = new Kueste();
+				k.getFelder()[mitteX - i - 1][mitteY + ii + 2] = new Kueste();
+				k.getFelder()[mitteX - i - 1][mitteY + ii + 3] = new Kueste();
+				k.getFelder()[mitteX - i - 2][mitteY + ii + 1] = new Kueste();
+				k.getFelder()[mitteX - i - 3][mitteY + ii + 1] = new Kueste();
+			}
+			hoeheVomLetzten = hoeheJetzt;
+		}		
+	}
+
+	private static void generierLand2(Karte k, int hoch, int runter, int rechts, int links , Feld f , int startX, int startY){
+		//kreuz zeichnen
+		k.getFelder()[startX][startY] = cloneMirDasObjekt(f);
+		for (int i = 0; i < hoch; i++) {
+			if(arrayIndexGut(startX, startY - i - 1)){
+				if(k.getFelder()[startX][startY - i - 1]instanceof Berg)
+					k.getFelder()[startX][startY - i - 1] = cloneMirDasObjekt(f);
+			}
+		}
+		for (int i = 0; i < runter; i++) {
+			if(arrayIndexGut(startX,startY + i + 1 )){
+				if(k.getFelder()[startX][startY + i + 1]instanceof Berg)
+					k.getFelder()[startX][startY + i + 1] = cloneMirDasObjekt(f);
+			}
+		}
+		for (int i = 0; i < rechts; i++) {
+			if(arrayIndexGut(startX + i + 1, startY)){
+				if(k.getFelder()[startX + i + 1][startY]instanceof Berg)
+					k.getFelder()[startX + i + 1][startY] = cloneMirDasObjekt(f);
+			}
+		}
+		for (int i = 0; i < links; i++) {
+			if(arrayIndexGut(startX - i - 1, startX))
+				if(k.getFelder()[startX - i - 1][startY]instanceof Berg)
+					k.getFelder()[startX - i - 1][startY] = cloneMirDasObjekt(f);
+		}
+		
+		// F�llt kreuz
+		int hoeheVomLetzten = hoch;
+		int hoeheJetzt;
+		boolean raus = true;
+		
+		//obenRechts
+		for (int i = 0; i < rechts; i++) {
+			do {
+				hoeheJetzt = r.nextInt(hoeheVomLetzten + 1);
+				if (hoeheJetzt > hoeheVomLetzten - 2)
+					raus = false;
+				if (hoeheJetzt > hoeheVomLetzten - 3 && raus != false){
+					do{
+						hoeheJetzt = r.nextInt(hoeheVomLetzten + 1);
+						if (hoeheJetzt > hoeheVomLetzten - 3)
+							raus = false;
+					}while(raus);
+				}
+				
+			} while (raus);
+			raus = true;
+			for (int ii = 0; ii < hoeheJetzt; ii++){
+				if(arrayIndexGut(startX + i + 1, startY - ii - 1)){	
+					if(k.getFelder()[startX + i + 1][startY - ii - 1]instanceof Berg)
+						k.getFelder()[startX + i + 1][startY - ii - 1] = cloneMirDasObjekt(f);
+				}
+			}
+			hoeheVomLetzten = hoeheJetzt;
+		}
+		
+		
+		
+		//obenLinks
+		hoeheVomLetzten = hoch;
+		for (int i = 0; i < links; i++) {
+			do {
+				hoeheJetzt = r.nextInt(hoeheVomLetzten + 1);
+				if (hoeheJetzt > hoeheVomLetzten - 2)
+					raus = false;
+				if (hoeheJetzt > hoeheVomLetzten - 3 && raus != false){
+					do{
+						hoeheJetzt = r.nextInt(hoeheVomLetzten + 1);
+						if (hoeheJetzt > hoeheVomLetzten - 3)
+							raus = false;
+					}while(raus);
+				}
+				
+			} while (raus);
+			raus = true;
+			for (int ii = 0; ii < hoeheJetzt; ii++){
+				if(arrayIndexGut(startX - i - 1, startY - ii - 1)){
+					if(k.getFelder()[startX - i - 1][startY - ii - 1]instanceof Berg)
+						k.getFelder()[startX - i - 1][startY - ii - 1] = cloneMirDasObjekt(f);
+				}
+			}
+			hoeheVomLetzten = hoeheJetzt;
+		}
+		
+		//untenRechts
+		hoeheVomLetzten = runter;
+		for (int i = 0; i < rechts; i++) {
+			do {
+				hoeheJetzt = r.nextInt(hoeheVomLetzten + 1);
+				if (hoeheJetzt > hoeheVomLetzten - 2)
+					raus = false;
+				if (hoeheJetzt > hoeheVomLetzten - 3 && raus != false){
+					do{
+						hoeheJetzt = r.nextInt(hoeheVomLetzten + 1);
+						if (hoeheJetzt > hoeheVomLetzten - 3)
+							raus = false;
+					}while(raus);
+				}
+				
+			} while (raus);
+			raus = true;
+			for (int ii = 0; ii < hoeheJetzt; ii++){
+				if(arrayIndexGut(startX + i + 1, startY + ii + 1))
+					if(k.getFelder()[startX + i + 1][startY + ii + 1]instanceof Berg)
+						k.getFelder()[startX + i + 1][startY + ii + 1] = cloneMirDasObjekt(f);
+			}
+			hoeheVomLetzten = hoeheJetzt;
+		}
+		
+		//untenLinks
+		hoeheVomLetzten = runter;
+		for (int i = 0; i < links; i++) {
+			do {
+				hoeheJetzt = r.nextInt(hoeheVomLetzten + 1);
+				if (hoeheJetzt > hoeheVomLetzten - 2)
+					raus = false;
+				if (hoeheJetzt > hoeheVomLetzten - 3 && raus != false){
+					do{
+						hoeheJetzt = r.nextInt(hoeheVomLetzten + 1);
+						if (hoeheJetzt > hoeheVomLetzten - 3)
+							raus = false;
+					}while(raus);
+				}
+				
+			} while (raus);
+			raus = true;
+			for (int ii = 0; ii < hoeheJetzt; ii++){
+				if(arrayIndexGut(startX - i - 1, startY + ii + 1))
+					if(k.getFelder()[startX - i - 1][startY + ii + 1]instanceof Berg)
+						k.getFelder()[startX - i - 1][startY + ii + 1] = cloneMirDasObjekt(f);
+			}
+			hoeheVomLetzten = hoeheJetzt;
+		}		
+	}
+
+	private static boolean arrayIndexGut(int x, int y){
+		boolean b = true;
+		if (x<0||x>Parameter.spielfeldAnzahlX||y<0 || y > Parameter.spielfeldAnzahlY)
+			b = false;
+		return b;
+	}
+	
+
+	
+	private static boolean istEisMoeglich(int yPosition) {
+		if ((((double)yPosition / Parameter.spielfeldAnzahlY) < 0.15)
+				| (((double)yPosition / Parameter.spielfeldAnzahlY) > 0.85))
+			return true;
+		else
+			return false;
+	}
+
+	private static boolean istWuesteMoeglich(int yPosition) {
+		if ((((double)yPosition / Parameter.spielfeldAnzahlY) > 0.40)
+				&& (((double)yPosition / Parameter.spielfeldAnzahlY) < 0.60))
+			return true;
+		else
+			return false;
+	}
+	
+	private static Feld cloneMirDasObjekt(Feld f){
+		if(f instanceof Berg)
+			return new Berg();
+		if(f instanceof Dschungel)
+			return new Dschungel();
+		if(f instanceof Eis)
+			return new Eis();
+		if(f instanceof Huegel)
+			return new Huegel();
+		if(f instanceof Kueste)
+			return new Kueste();
+		if(f instanceof Meer)
+			return new Meer();
+		if(f instanceof Steppe)
+			return new Steppe();
+		if(f instanceof Sumpf)
+			return new Sumpf();
+		if(f instanceof Wald)
+			return new Wald();
+		if(f instanceof Wiese)
+			return new Wiese();
+		if(f instanceof Wueste)
+			return new Wueste();
+		return null;		
+	}
+}

@@ -1,0 +1,65 @@
+K 25
+svn:wc:ra_dav:version-url
+V 58
+/svn/inf2-team11/!svn/ver/175/RandomMapGenerator/src/karte
+END
+Resource.java
+K 25
+svn:wc:ra_dav:version-url
+V 71
+/svn/inf2-team11/!svn/ver/24/RandomMapGenerator/src/karte/Resource.java
+END
+Karte.java
+K 25
+svn:wc:ra_dav:version-url
+V 68
+/svn/inf2-team11/!svn/ver/24/RandomMapGenerator/src/karte/Karte.java
+END
+FeldArt.java
+K 25
+svn:wc:ra_dav:version-url
+V 70
+/svn/inf2-team11/!svn/ver/24/RandomMapGenerator/src/karte/FeldArt.java
+END
+FeldArtErde.java
+K 25
+svn:wc:ra_dav:version-url
+V 74
+/svn/inf2-team11/!svn/ver/24/RandomMapGenerator/src/karte/FeldArtErde.java
+END
+FeldArtWeltraum.java
+K 25
+svn:wc:ra_dav:version-url
+V 78
+/svn/inf2-team11/!svn/ver/24/RandomMapGenerator/src/karte/FeldArtWeltraum.java
+END
+Position.java
+K 25
+svn:wc:ra_dav:version-url
+V 71
+/svn/inf2-team11/!svn/ver/24/RandomMapGenerator/src/karte/Position.java
+END
+Feld.java
+K 25
+svn:wc:ra_dav:version-url
+V 68
+/svn/inf2-team11/!svn/ver/175/RandomMapGenerator/src/karte/Feld.java
+END
+FeldArtUnterwasser.java
+K 25
+svn:wc:ra_dav:version-url
+V 81
+/svn/inf2-team11/!svn/ver/24/RandomMapGenerator/src/karte/FeldArtUnterwasser.java
+END
+ResourcenArt.java
+K 25
+svn:wc:ra_dav:version-url
+V 75
+/svn/inf2-team11/!svn/ver/24/RandomMapGenerator/src/karte/ResourcenArt.java
+END
+KartenArt.java
+K 25
+svn:wc:ra_dav:version-url
+V 72
+/svn/inf2-team11/!svn/ver/24/RandomMapGenerator/src/karte/KartenArt.java
+END
